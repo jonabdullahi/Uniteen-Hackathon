@@ -17,7 +17,7 @@ const appointmentSchema = z.object({
   date: z.string().min(1, "Select a date"),
   time: z.string().min(1, "Select a time"),
   topic: z.string().min(1, "Add a topic"),
-  notes: z.string().optional(),
+  notes: z.string().trim().min(1, "Add meeting notes"),
 });
 
 type AppointmentForm = z.infer<typeof appointmentSchema>;
@@ -54,7 +54,7 @@ export default function AiAppointment() {
       date: data.date,
       time: data.time,
       topic: data.topic,
-      notes: data.notes || "",
+      notes: data.notes,
       requestedAt: new Date().toISOString(),
     });
     setSubmittedData(data);
@@ -252,7 +252,7 @@ export default function AiAppointment() {
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Notes (Optional)</FormLabel>
+                      <FormLabel>Notes</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Any constraints or context the AI should know"

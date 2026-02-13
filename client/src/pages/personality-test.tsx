@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, Sparkles } from "lucide-react";
 
 export default function PersonalityTest() {
@@ -38,6 +39,21 @@ export default function PersonalityTest() {
       },
     },
   });
+
+  const coreValues = [
+    "Impact",
+    "Stability",
+    "Creativity",
+    "Leadership",
+    "Innovation",
+    "Community",
+  ];
+  const personalityTraits = [
+    { key: "Analytical", label: "I consider myself analytical." },
+    { key: "Creative", label: "I consider myself creative." },
+    { key: "Social", label: "I consider myself social." },
+    { key: "Organized", label: "I consider myself organized." },
+  ] as const;
 
   const onSubmit = (data: z.infer<typeof finalSurveySchema>) => {
     updateFinalSurvey(data);
@@ -98,10 +114,11 @@ export default function PersonalityTest() {
         </p>
       </header>
 
-      <Card className="max-w-3xl">
-        <CardContent className="p-8">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <div className="flex justify-center">
+        <Card className="w-full max-w-3xl">
+          <CardContent className="p-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-[#03396c] border-b pb-2 flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-[#005b96]" />
@@ -109,15 +126,15 @@ export default function PersonalityTest() {
                 </h3>
                 <p className="text-sm text-gray-500 mb-4">To what extent do you agree with the following?</p>
 
-                {["Analytical", "Creative", "Social", "Organized"].map((trait) => (
+                {personalityTraits.map((trait) => (
                   <FormField
-                    key={trait}
+                    key={trait.key}
                     control={form.control}
-                    name={`personality.${trait}`}
+                    name={`personality.${trait.key}`}
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel>I consider myself {trait.toLowerCase()}.</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>{trait.label}</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select..." />
@@ -131,10 +148,54 @@ export default function PersonalityTest() {
                             <SelectItem value="Strongly Agree">Strongly Agree</SelectItem>
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 ))}
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-[#03396c] border-b pb-2">Core Values</h3>
+                <FormField
+                  control={form.control}
+                  name="values"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Select at least one value that matters most to you</FormLabel>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg border border-slate-200 p-4">
+                        {coreValues.map((value) => (
+                          <FormField
+                            key={value}
+                            control={form.control}
+                            name="values"
+                            render={({ field }) => {
+                              const checked = field.value?.includes(value);
+                              return (
+                                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(isChecked) => {
+                                        if (isChecked) {
+                                          field.onChange([...(field.value || []), value]);
+                                        } else {
+                                          field.onChange((field.value || []).filter((item) => item !== value));
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">{value}</FormLabel>
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="space-y-4">
@@ -180,6 +241,87 @@ export default function PersonalityTest() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
+                    )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="preferences.studyEnvironment"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Preferred Study Environment</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="flex flex-col space-y-1">
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Quiet" /></FormControl>
+                            <FormLabel className="font-normal">Quiet and focused</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Collaborative" /></FormControl>
+                            <FormLabel className="font-normal">Collaborative group setting</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Flexible" /></FormControl>
+                            <FormLabel className="font-normal">Flexible mix of both</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="preferences.location"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Preferred Future Location</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="flex flex-col space-y-1">
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Local" /></FormControl>
+                            <FormLabel className="font-normal">Stay local</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="National" /></FormControl>
+                            <FormLabel className="font-normal">Move within the country</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="International" /></FormControl>
+                            <FormLabel className="font-normal">Study/work internationally</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="preferences.approach"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Preferred Learning Approach</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="flex flex-col space-y-1">
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Structured" /></FormControl>
+                            <FormLabel className="font-normal">Structured plan with milestones</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Exploratory" /></FormControl>
+                            <FormLabel className="font-normal">Exploratory and project-driven</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl><RadioGroupItem value="Balanced" /></FormControl>
+                            <FormLabel className="font-normal">Balanced combination</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
               </div>
@@ -189,10 +331,11 @@ export default function PersonalityTest() {
                   Save Personality Test
                 </Button>
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
     </Layout>
   );
 }

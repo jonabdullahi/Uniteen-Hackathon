@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
-import { FALLBACK_SUBJECTS, splitSubjects, uniqueSubjects } from "@/lib/ai-quiz";
+import { splitSubjects, uniqueSubjects } from "@/lib/ai-quiz";
 
 export default function AiQuiz() {
   const initialSurvey = useStore((state) => state.initialSurvey);
@@ -20,17 +20,20 @@ export default function AiQuiz() {
       ...splitSubjects(initialSurvey?.weakSubjects || ""),
     ];
     const subjects = uniqueSubjects(surveySubjects);
-    return subjects.length ? subjects : FALLBACK_SUBJECTS;
+    return subjects;
   }, [initialSurvey]);
 
   const [subjectInput, setSubjectInput] = useState(defaultSubjects.join(", "));
   const selectedSubjects = uniqueSubjects(splitSubjects(subjectInput));
-  const activeSubjects = selectedSubjects.length ? selectedSubjects : FALLBACK_SUBJECTS;
+  const activeSubjects = selectedSubjects;
 
   const handleStartQuiz = () => {
     const subjects = uniqueSubjects(splitSubjects(subjectInput));
+    if (!subjects.length) {
+      return;
+    }
     const params = new URLSearchParams({
-      subjects: (subjects.length ? subjects : FALLBACK_SUBJECTS).join(","),
+      subjects: subjects.join(","),
     });
     setLocation(`/ai-quiz/take?${params.toString()}`);
   };
@@ -76,6 +79,9 @@ export default function AiQuiz() {
                 </Badge>
               ))}
             </div>
+            {!activeSubjects.length && (
+              <p className="text-xs text-red-500 mt-2">Add at least one subject to start the quiz.</p>
+            )}
             <p className="text-xs text-gray-600 mt-3">
               You will get 6 adaptive questions with instant scoring and improvement feedback.
             </p>
@@ -90,7 +96,11 @@ export default function AiQuiz() {
               <p className="text-sm text-gray-700 mt-1">Identify weak topics and get clear next study steps.</p>
             </div>
           </div>
-          <Button onClick={handleStartQuiz} className="bg-[#005b96] hover:bg-[#03396c]">
+          <Button
+            onClick={handleStartQuiz}
+            disabled={!activeSubjects.length}
+            className="bg-[#005b96] hover:bg-[#03396c]"
+          >
             <Sparkles className="h-4 w-4 mr-2" />
             Start Quiz
           </Button>

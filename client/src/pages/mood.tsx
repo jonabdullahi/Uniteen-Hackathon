@@ -3,7 +3,6 @@ import { Layout } from "@/components/Layout";
 import { useStore } from "@/lib/store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { moodEntrySchema } from "@shared/schema";
 import { z } from "zod";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,15 +23,23 @@ const MOOD_EMOJIS = [
 
 export default function MoodTracker() {
   const { moodEntries, addMoodEntry } = useStore();
-  const [selectedRating, setSelectedRating] = useState<number>(3);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
-  const form = useForm({
+  const moodFormSchema = z.object({
+    note: z.string().trim().min(1, "Reflection is required"),
+  });
+
+  const form = useForm<z.infer<typeof moodFormSchema>>({
+    resolver: zodResolver(moodFormSchema),
     defaultValues: {
       note: "",
     }
   });
 
-  const onSubmit = (data: { note: string }) => {
+  const onSubmit = (data: z.infer<typeof moodFormSchema>) => {
+    if (selectedRating === null) {
+      return;
+    }
     const newEntry = {
       id: Math.random().toString(36).substr(2, 9),
       date: new Date().toISOString(),
@@ -77,6 +84,9 @@ export default function MoodTracker() {
                   </button>
                 ))}
               </div>
+              {selectedRating === null && (
+                <p className="text-sm text-red-500 mb-3">Select a mood rating before logging.</p>
+              )}
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -85,7 +95,7 @@ export default function MoodTracker() {
                     name="note"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Daily Reflection (Optional)</FormLabel>
+                        <FormLabel>Daily Reflection</FormLabel>
                         <FormControl>
                           <Textarea 
                             placeholder="What made you feel this way? Any stressors or wins?" 

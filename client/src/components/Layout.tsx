@@ -12,6 +12,8 @@ import {
   ClipboardCheck,
   Calendar,
   Brain,
+  Route,
+  Lock,
   LogOut,
   Menu,
   X
@@ -28,29 +30,64 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const [location, setLocation] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { resetData, userProfile, finalSurvey, initialSurvey } = useStore();
+  const { resetData, userProfile, studyPlan, finalSurvey, initialSurvey, userSettings } = useStore();
 
   type NavItem = {
     icon: LucideIcon;
     label: string;
     href: string;
+    locked?: boolean;
+    unlockHint?: string;
   };
 
   const navItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+    { icon: Route, label: "Pathways", href: "/pathways" },
     { icon: ClipboardList, label: "Survey", href: "/survey" },
-    { icon: BookOpen, label: "Diagnostic", href: "/diagnostic" },
-    ...(initialSurvey ? [{ icon: Brain, label: "AI Quiz", href: "/ai-quiz" }] : []),
+    {
+      icon: BookOpen,
+      label: "Diagnostic",
+      href: "/diagnostic",
+      locked: !initialSurvey,
+      unlockHint: "Complete Survey first",
+    },
+    {
+      icon: Brain,
+      label: "AI Quiz",
+      href: "/ai-quiz",
+      locked: !studyPlan,
+      unlockHint: "Complete Diagnostic first",
+    },
     { icon: Smile, label: "Mood Tracker", href: "/mood" },
     { icon: GraduationCap, label: "Career Path", href: "/career" },
-    ...(initialSurvey ? [{ icon: ClipboardCheck, label: "Personality Test", href: "/personality-test" }] : []),
-    ...(finalSurvey
-      ? [
-          { icon: Building2, label: "Universities", href: "/universities" },
-          { icon: Users, label: "Alumni Network", href: "/alumni" },
-          { icon: Calendar, label: "AI Appointment", href: "/ai-appointment" },
-        ]
-      : []),
+    {
+      icon: ClipboardCheck,
+      label: "Personality Test",
+      href: "/personality-test",
+      locked: !studyPlan,
+      unlockHint: "Complete Diagnostic first",
+    },
+    {
+      icon: Building2,
+      label: "Universities",
+      href: "/universities",
+      locked: !finalSurvey,
+      unlockHint: "Complete Personality Test first",
+    },
+    {
+      icon: Users,
+      label: "Alumni Network",
+      href: "/alumni",
+      locked: !finalSurvey,
+      unlockHint: "Complete Personality Test first",
+    },
+    {
+      icon: Calendar,
+      label: "AI Appointment",
+      href: "/ai-appointment",
+      locked: !finalSurvey,
+      unlockHint: "Complete Personality Test first",
+    },
   ];
 
   const initials = userProfile?.name
@@ -87,19 +124,36 @@ export function Layout({ children }: LayoutProps) {
             <button
               key={item.href}
               type="button"
+              disabled={item.locked}
               onClick={() => {
+                if (item.locked) return;
                 setLocation(item.href);
                 setIsMobileOpen(false);
               }}
               className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
-              isActive 
-                ? "bg-[#005b96] text-white shadow-lg shadow-black/20 font-medium" 
+              "w-full flex items-start gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-left",
+              item.locked
+                ? "text-blue-300/70 bg-[#022a5d]/60 cursor-not-allowed"
+                : isActive
+                ? "bg-[#005b96] text-white shadow-lg shadow-black/20 font-medium"
                 : "text-blue-200 hover:bg-[#03396c] hover:text-white"
               )}
             >
-              <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "text-[#6497b1] group-hover:text-white")} />
-              {item.label}
+              <item.icon
+                className={cn(
+                  "h-5 w-5 mt-0.5",
+                  item.locked ? "text-blue-300/70" : isActive ? "text-white" : "text-[#6497b1] group-hover:text-white"
+                )}
+              />
+              <span className="flex-1">
+                <span className="block leading-tight">{item.label}</span>
+                {item.locked && item.unlockHint && (
+                  <span className="mt-1 flex items-center gap-1 text-[11px] text-blue-200/85">
+                    <Lock className="h-3 w-3" />
+                    {item.unlockHint}
+                  </span>
+                )}
+              </span>
             </button>
           );
         })}
@@ -113,8 +167,12 @@ export function Layout({ children }: LayoutProps) {
               {initials}
             </div>
             <div>
-              <p className="text-sm font-medium">{userProfile?.name || "Student"}</p>
-              <p className="text-xs text-blue-300">{userProfile?.school || "Profile in progress"}</p>
+              <p className="text-sm font-medium">
+                {userSettings?.privacyMode ? "Private Student" : userProfile?.name || "Student"}
+              </p>
+              <p className="text-xs text-blue-300">
+                {userSettings?.privacyMode ? "Privacy mode enabled" : userProfile?.school || "Profile in progress"}
+              </p>
             </div>
           </div>
         </div>
@@ -131,7 +189,13 @@ export function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-[#f0f4f8] flex">
+    <div
+      className={cn(
+        "min-h-screen bg-[#f0f4f8] flex",
+        userSettings?.textScale === "large" && "text-[17px]",
+        userSettings?.highContrast && "contrast-125 saturate-125"
+      )}
+    >
       {/* Desktop Sidebar */}
       <aside className="hidden md:block w-64 fixed h-full z-30 shadow-2xl">
         <SidebarContent />

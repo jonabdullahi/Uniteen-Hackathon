@@ -19,16 +19,18 @@ import PersonalityTest from "@/pages/personality-test";
 import AiAppointment from "@/pages/ai-appointment";
 import AiQuiz from "@/pages/ai-quiz";
 import AiQuizTake from "@/pages/ai-quiz-take";
+import Pathways from "@/pages/pathways";
 import NotFound from "@/pages/not-found";
 
 function GuardedRoute({
   component: Component,
   requireSummary = true,
   requireInitialSurvey = false,
+  requireDiagnostic = false,
   requireFinalSurvey = false,
   ...rest
 }: any) {
-  const { userProfile, summaryComplete, initialSurvey, finalSurvey } = useStore();
+  const { userProfile, summaryComplete, initialSurvey, studyPlan, finalSurvey } = useStore();
 
   if (!userProfile?.name) {
     return <Redirect to="/login" />;
@@ -38,6 +40,9 @@ function GuardedRoute({
   }
   if (requireInitialSurvey && !initialSurvey) {
     return <Redirect to="/survey" />;
+  }
+  if (requireDiagnostic && !studyPlan) {
+    return <Redirect to="/diagnostic" />;
   }
   if (requireFinalSurvey && !finalSurvey) {
     return <Redirect to="/personality-test" />;
@@ -72,10 +77,13 @@ function Router() {
       </Route>
 
       <Route path="/diagnostic">
-        {() => <GuardedRoute component={Diagnostic} />}
+        {() => <GuardedRoute component={Diagnostic} requireInitialSurvey />}
       </Route>
       <Route path="/dashboard">
         {() => <GuardedRoute component={Dashboard} />}
+      </Route>
+      <Route path="/pathways">
+        {() => <GuardedRoute component={Pathways} />}
       </Route>
       <Route path="/mood">
         {() => <GuardedRoute component={MoodTracker} />}
@@ -85,7 +93,7 @@ function Router() {
       </Route>
 
       <Route path="/personality-test">
-        {() => <GuardedRoute component={PersonalityTest} requireInitialSurvey />}
+        {() => <GuardedRoute component={PersonalityTest} requireDiagnostic />}
       </Route>
       <Route path="/final-survey" component={() => <Redirect to="/personality-test" />} />
 
@@ -102,10 +110,10 @@ function Router() {
         {() => <GuardedRoute component={AiAppointment} requireFinalSurvey />}
       </Route>
       <Route path="/ai-quiz">
-        {() => <GuardedRoute component={AiQuiz} requireInitialSurvey />}
+        {() => <GuardedRoute component={AiQuiz} requireDiagnostic />}
       </Route>
       <Route path="/ai-quiz/take">
-        {() => <GuardedRoute component={AiQuizTake} requireInitialSurvey />}
+        {() => <GuardedRoute component={AiQuizTake} requireDiagnostic />}
       </Route>
 
       <Route component={NotFound} />

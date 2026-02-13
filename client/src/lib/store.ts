@@ -15,6 +15,7 @@ interface AppState extends EduBridgeState {
   setScheduleCompletion: (entry: EduBridgeState['scheduleCompletions'][number]) => void;
   toggleSavedUniversity: (id: number) => void;
   toggleUniversityChecklistItem: (universityId: number, item: string) => void;
+  updateUserSettings: (settings: Partial<NonNullable<EduBridgeState['userSettings']>>) => void;
   resetData: () => void;
 }
 
@@ -33,6 +34,12 @@ const initialState: EduBridgeState = {
   scheduleCompletions: [],
   savedUniversities: [],
   universityChecklist: {},
+  userSettings: {
+    privacyMode: false,
+    highContrast: false,
+    textScale: "normal",
+    language: "English",
+  },
 };
 
 export const useStore = create<AppState>()(
@@ -94,6 +101,11 @@ export const useStore = create<AppState>()(
             },
           };
         }),
+
+      updateUserSettings: (settings) =>
+        set((state) => ({
+          userSettings: { ...(state.userSettings ?? initialState.userSettings), ...settings },
+        })),
 
       resetData: () => set(initialState),
     }),
