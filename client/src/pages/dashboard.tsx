@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
-  const { userProfile, studyPlan, moodEntries } = useStore();
+  const { userProfile, studyPlan, moodEntries, initialSurvey, finalSurvey } = useStore();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [simplified, setSimplified] = useState(false);
 
@@ -57,6 +57,34 @@ export default function Dashboard() {
         </motion.div>
       </header>
 
+      {!initialSurvey && (
+        <Card className="mb-6 border-0 shadow-md bg-[#b3cde0]/20">
+          <CardContent className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-[#011f4b]">Complete the Initial Survey</h2>
+              <p className="text-sm text-gray-600">This separate step helps personalize your dashboard.</p>
+            </div>
+            <Link href="/survey">
+              <Button className="bg-[#005b96] hover:bg-[#03396c]">Start Survey</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {initialSurvey && !finalSurvey && (
+        <Card className="mb-6 border-0 shadow-md bg-white">
+          <CardContent className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-[#011f4b]">Year 4 Personality Test</h2>
+              <p className="text-sm text-gray-600">Unlock universities and alumni when you are ready.</p>
+            </div>
+            <Link href="/personality-test">
+              <Button variant="outline">Take Personality Test</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content - Left 2/3 */}
         <div className="lg:col-span-2 space-y-6">
@@ -89,7 +117,7 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <h3 className="text-2xl font-bold mb-4">{studyPlan.recommendedMethod}</h3>
+                <h3 className="text-2xl font-bold mb-4 text-white">{studyPlan.recommendedMethod}</h3>
                 <p className="text-blue-100 leading-relaxed max-w-xl">
                   {simplified 
                     ? "Work for 25 minutes. Take a 5 minute break. Repeat."

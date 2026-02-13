@@ -59,6 +59,7 @@ export const studyPlanSchema = z.object({
 // Unified State Object
 export const eduBridgeStateSchema = z.object({
   userProfile: userProfileSchema.optional(),
+  summaryComplete: z.boolean().optional(),
   initialSurvey: initialSurveySchema.optional(),
   diagnosticResults: z.any().optional(),
   studyPlan: studyPlanSchema.optional(),

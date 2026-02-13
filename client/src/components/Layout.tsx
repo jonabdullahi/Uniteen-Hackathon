@@ -7,7 +7,9 @@ import {
   GraduationCap, 
   Building2, 
   Users, 
-  Settings,
+  ClipboardList,
+  ClipboardCheck,
+  Calendar,
   LogOut,
   Menu,
   X
@@ -25,17 +27,33 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const resetData = useStore(state => state.resetData);
+  const { resetData, userProfile, finalSurvey, initialSurvey } = useStore();
 
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+    { icon: ClipboardList, label: "Survey", href: "/survey" },
     { icon: BookOpen, label: "Diagnostic", href: "/diagnostic" },
     { icon: Smile, label: "Mood Tracker", href: "/mood" },
     { icon: GraduationCap, label: "Career Path", href: "/career" },
-    { icon: Building2, label: "Universities", href: "/universities" },
-    { icon: Users, label: "Alumni Network", href: "/alumni" },
-    { icon: Settings, label: "Final Assessment", href: "/final-survey" },
+    ...(initialSurvey ? [{ icon: ClipboardCheck, label: "Personality Test", href: "/personality-test" }] : []),
+    ...(finalSurvey
+      ? [
+          { icon: Building2, label: "Universities", href: "/universities" },
+          { icon: Users, label: "Alumni Network", href: "/alumni" },
+          { icon: Calendar, label: "AI Appointment", href: "/ai-appointment" },
+        ]
+      : []),
   ];
+
+  const initials = userProfile?.name
+    ? userProfile.name
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "ST";
 
   const handleReset = () => {
     if (confirm("Are you sure you want to clear all demo data?")) {
@@ -76,11 +94,11 @@ export function Layout({ children }: LayoutProps) {
           <p className="text-xs text-blue-200 mb-2">Student Profile</p>
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-[#6497b1] flex items-center justify-center text-[#011f4b] font-bold">
-              JD
+              {initials}
             </div>
             <div>
-              <p className="text-sm font-medium">John Doe</p>
-              <p className="text-xs text-blue-300">Grade 11</p>
+              <p className="text-sm font-medium">{userProfile?.name || "Student"}</p>
+              <p className="text-xs text-blue-300">{userProfile?.school || "Profile in progress"}</p>
             </div>
           </div>
         </div>

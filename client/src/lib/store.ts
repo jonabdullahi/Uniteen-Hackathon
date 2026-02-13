@@ -5,6 +5,7 @@ import type { EduBridgeState } from '@shared/schema';
 interface AppState extends EduBridgeState {
   // Actions
   updateUserProfile: (profile: NonNullable<EduBridgeState['userProfile']>) => void;
+  setSummaryComplete: (complete: boolean) => void;
   updateInitialSurvey: (survey: NonNullable<EduBridgeState['initialSurvey']>) => void;
   updateStudyPlan: (plan: NonNullable<EduBridgeState['studyPlan']>) => void;
   addMoodEntry: (entry: EduBridgeState['moodEntries'][number]) => void;
@@ -15,6 +16,7 @@ interface AppState extends EduBridgeState {
 
 const initialState: EduBridgeState = {
   userProfile: undefined,
+  summaryComplete: false,
   initialSurvey: undefined,
   diagnosticResults: undefined,
   studyPlan: undefined,
@@ -32,6 +34,9 @@ export const useStore = create<AppState>()(
 
       updateUserProfile: (profile) => 
         set((state) => ({ userProfile: { ...state.userProfile, ...profile } })),
+
+      setSummaryComplete: (complete) =>
+        set(() => ({ summaryComplete: complete })),
 
       updateInitialSurvey: (survey) => 
         set((state) => ({ initialSurvey: { ...state.initialSurvey, ...survey } })),
