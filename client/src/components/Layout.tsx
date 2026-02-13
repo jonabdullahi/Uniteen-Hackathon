@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
-import { Link, useLocation } from "wouter";
+import { type ReactNode, useState } from "react";
+import { useLocation } from "wouter";
 import { 
+  type LucideIcon,
   LayoutDashboard, 
   BookOpen, 
   Smile, 
@@ -10,11 +11,11 @@ import {
   ClipboardList,
   ClipboardCheck,
   Calendar,
+  Brain,
   LogOut,
   Menu,
   X
 } from "lucide-react";
-import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -25,14 +26,21 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { resetData, userProfile, finalSurvey, initialSurvey } = useStore();
 
-  const navItems = [
+  type NavItem = {
+    icon: LucideIcon;
+    label: string;
+    href: string;
+  };
+
+  const navItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: ClipboardList, label: "Survey", href: "/survey" },
     { icon: BookOpen, label: "Diagnostic", href: "/diagnostic" },
+    ...(initialSurvey ? [{ icon: Brain, label: "AI Quiz", href: "/ai-quiz" }] : []),
     { icon: Smile, label: "Mood Tracker", href: "/mood" },
     { icon: GraduationCap, label: "Career Path", href: "/career" },
     ...(initialSurvey ? [{ icon: ClipboardCheck, label: "Personality Test", href: "/personality-test" }] : []),
@@ -76,15 +84,23 @@ export function Layout({ children }: LayoutProps) {
         {navItems.map((item) => {
           const isActive = location === item.href;
           return (
-            <Link key={item.href} href={item.href} className={cn(
+            <button
+              key={item.href}
+              type="button"
+              onClick={() => {
+                setLocation(item.href);
+                setIsMobileOpen(false);
+              }}
+              className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
               isActive 
                 ? "bg-[#005b96] text-white shadow-lg shadow-black/20 font-medium" 
                 : "text-blue-200 hover:bg-[#03396c] hover:text-white"
-            )}>
+              )}
+            >
               <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "text-[#6497b1] group-hover:text-white")} />
               {item.label}
-            </Link>
+            </button>
           );
         })}
       </nav>

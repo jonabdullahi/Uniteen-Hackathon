@@ -17,6 +17,8 @@ import Career from "@/pages/career";
 import Alumni from "@/pages/alumni";
 import PersonalityTest from "@/pages/personality-test";
 import AiAppointment from "@/pages/ai-appointment";
+import AiQuiz from "@/pages/ai-quiz";
+import AiQuizTake from "@/pages/ai-quiz-take";
 import NotFound from "@/pages/not-found";
 
 function GuardedRoute({
@@ -98,6 +100,12 @@ function Router() {
       </Route>
       <Route path="/ai-appointment">
         {() => <GuardedRoute component={AiAppointment} requireFinalSurvey />}
+      </Route>
+      <Route path="/ai-quiz">
+        {() => <GuardedRoute component={AiQuiz} requireInitialSurvey />}
+      </Route>
+      <Route path="/ai-quiz/take">
+        {() => <GuardedRoute component={AiQuizTake} requireInitialSurvey />}
       </Route>
 
       <Route component={NotFound} />

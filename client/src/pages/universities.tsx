@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { UNIVERSITIES } from "@/data/universities";
 
 export default function Universities() {
   const [search, setSearch] = useState("");
+  const [, setLocation] = useLocation();
 
   const filtered = UNIVERSITIES.filter((u) =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -74,10 +75,10 @@ export default function Universities() {
               </CardContent>
               <CardFooter className="p-5 pt-0">
                 <Button
-                  asChild
+                  onClick={() => setLocation(`/universities/${uni.id}`)}
                   className="w-full bg-white text-[#005b96] border border-[#005b96] hover:bg-[#005b96] hover:text-white transition-colors"
                 >
-                  <Link href={`/universities/${uni.id}`}>View Details</Link>
+                  View Details
                 </Button>
               </CardFooter>
             </Card>
