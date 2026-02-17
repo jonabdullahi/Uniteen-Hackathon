@@ -1,1 +1,4 @@
-Hello this project was build during the Teens in [dawoufafawf
+Prerequisites: Node.js
+
+Install dependencies: npm install
+Run the app: npm run dev:client
